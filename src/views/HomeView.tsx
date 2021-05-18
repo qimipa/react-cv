@@ -2,15 +2,12 @@ import React, { FunctionComponent } from "react";
 import UploadOutlined from "@ant-design/icons/lib/icons/UploadOutlined";
 import { Button, message, Upload } from "antd";
 import { useCallback } from "react";
-import firebase from "firebase/app";
-import "firebase/auth";
+import useCurrentUserHook from "../hooks/useCurrentUserHook";
 
 import CardComponent from "../components/CardComponent";
 import ContactFormComponent from "../components/ContactFormComponent";
 import FooterComponent from "../components/FooterComponent";
 import NavbarComponent from "../components/NavbarComponent";
-import { useEffect } from "react";
-import { useState } from "react";
 
 interface IProps {}
 
@@ -18,19 +15,9 @@ const NAME: string = "ENRIQUE SHUNNAR";
 const POSITION: string = "Fullstack Developer";
 
 const HomeView: FunctionComponent<IProps> = () => {
-  const [user, setUser] = useState<firebase.User | null>(null);
+  const user = useCurrentUserHook();
 
   const onUploadRequestOverride = useCallback((e) => e?.onSuccess?.("ok"), []);
-
-  useEffect(() => {
-    const auth = firebase.auth();
-
-    const unsubscribe = auth.onAuthStateChanged((e) => {
-      setUser(e);
-    });
-
-    return unsubscribe;
-  }, []);
 
   return (
     <div className="home-component">

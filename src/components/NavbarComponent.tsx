@@ -1,11 +1,33 @@
 import React from "react";
-import { Menu } from "antd";
+import { Menu, message } from "antd";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useCallback } from "react";
+import useCurrentUserHook from "../hooks/useCurrentUserHook";
+import firebase from "firebase/app";
+import "firebase/auth";
+import LogoutOutlinend from "@ant-design/icons/lib/icons/LogoutOutlined";
+
+const logoutIconStyle = { color: "red" };
 
 const NavbarComponent = () => {
+  const user = useCurrentUserHook();
   const location = useLocation();
   const history = useHistory();
+
+  const doLogout = useCallback(async () => {
+    try {
+      await firebase.auth().signOut();
+      message.info("Session Closed.");
+    } catch (e) {
+      console.log(e);
+      message.error("Something failed");
+    }
+    if (location.pathname !== "/") {
+      setTimeout(() => {
+        history.replace("/");
+      }, 1500);
+    }
+  }, []);
 
   const scrollToContactForm = useCallback(() => {
     new Promise((resolve) => {
@@ -27,9 +49,15 @@ const NavbarComponent = () => {
       <Menu.Item key="/#contact" onClick={scrollToContactForm}>
         Contact
       </Menu.Item>
-      <Menu.Item key="/login">
-        <Link to="/login">Login</Link>
-      </Menu.Item>
+      {!user ? (
+        <Menu.Item key="/login">
+          <Link to="/login">Login</Link>
+        </Menu.Item>
+      ) : (
+        <Menu.Item key="logout" onClick={doLogout}>
+          <LogoutOutlinend style={logoutIconStyle} />
+        </Menu.Item>
+      )}
     </Menu>
   );
 };
